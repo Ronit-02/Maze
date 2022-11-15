@@ -1,11 +1,7 @@
 LETTERS = 'abcdefghijklmnopqrstuvwxyz'
 
 def encrypt(initial, shift):
-    """ Use : encrypt("message", 98)
-    => 'gymmuay'
-
-    Encrypts text using Caesar Cipher
-    """
+    
     initial = initial.lower()
     output = ""
 
