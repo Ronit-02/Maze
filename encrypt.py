@@ -13,4 +13,4 @@ def encrypt(initial, shift):
         if char in LETTERS:
             output += LETTERS[(LETTERS.index(char) + shift) % len(LETTERS)]
 
-    return output
+    return output 

