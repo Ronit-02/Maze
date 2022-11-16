@@ -38,7 +38,3 @@ https://medium.com/@tarcisioma/ransomware-encryption-techniques-696531d07bb9
 This Ransomware mustn't be used to harm/threat/hurt other person's computer.
 
 Its purpose is only to share knowledge and awareness about Malware/Cryptography/Operating Systems/Programming.
-
-GonnaCry is an academic ransomware made for learning and awareness about security/cryptography.
-
-**Be aware running C/bin/GonnaCry or Python/GonnaCry/main.py Python/GonnaCry/bin/gonnacry in your computer, it may harm.**
