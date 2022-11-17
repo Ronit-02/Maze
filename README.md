@@ -1,6 +1,6 @@
 # Maze
 
-Maze is a ransomware that encrypts all the user files with a strong encryption scheme. Our ransomware is implemented in the file ransomware.py.
+Maze is a ransomware that encrypts all the user files with a strong encryption scheme. Our ransomware is implemented in the file `ransomware.py`.
 
 # What's a Ransomware?
 
