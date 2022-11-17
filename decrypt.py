@@ -1,12 +1,10 @@
-LETTERS = 'abcdefghijklmnopqrstuvwxyz'
+# Decrypt Function
+def decrypt(msg, key):
+    l = len(key)
+    decrypted_msg = ""
 
-def decrypt(initial, shift):
+    for i in range(len(msg)):
+        decrypted_char = ord(msg[i]) ^ ord(key[i % l])
+        decrypted_msg += chr(decrypted_char)
 
-    initial = initial.lower()
-    output = ""
-
-    for char in initial:
-        if char in LETTERS:
-            output += LETTERS[(LETTERS.index(char) - shift) % len(LETTERS)]
-        
-    return output
+    return decrypted_msg

@@ -1,12 +1,9 @@
-LETTERS = 'abcdefghijklmnopqrstuvwxyz'
+def encrypt(msg, key):
+    l = len(key)
+    encrypted_msg = ""
 
-def encrypt(initial, shift):
-    
-    initial = initial.lower()
-    output = ""
+    for i in range(len(msg)):
+        encrypted_char = ord(msg[i]) ^ ord(key[i % l])
+        encrypted_msg += chr(encrypted_char)
 
-    for char in initial:
-        if char in LETTERS:
-            output += LETTERS[(LETTERS.index(char) + shift) % len(LETTERS)]
-
-    return output 
+    return encrypted_msg

